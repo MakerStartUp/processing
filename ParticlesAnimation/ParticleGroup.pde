@@ -2,6 +2,7 @@ class ParticleGroup {
   ArrayList<Particle> particles = new ArrayList<Particle>();
   PVector pos = new PVector(0.0, 0.0);
   PVector vel = new PVector(0.0, 0.0);
+  PVector acc = new PVector(0.0, 0.0);
   int maxNbParticles;
   float mass;
   float friction;
@@ -9,34 +10,32 @@ class ParticleGroup {
   World world;
   color foregroundColor = color(random(0, 255), random(0, 255), random(0, 255));
   color fillColor = color(random(0, 255), random(0, 255), random(0, 255));
+  
+  public ParticleEmitter emitter;
 
-  public ParticleGroup(ParticleSystem ps,World w, int nbParticles, float x, float y, float mass, float friction) {
-    world = w;
-    maxNbParticles = nbParticles;
-    pos.x = x;
-    pos.y = y;
-    int plifespan = (int)random(5, 20);
-    for (int i=0; i<nbParticles; i++) {
-      Particle p = createParticle(mass, friction);
-      p.lifespan = plifespan;
+  public ParticleGroup(World w, int nbParticles, float x, float y, float mass, float friction) {
+    this.world = w;
+    this.maxNbParticles = nbParticles;
+    this.pos=new PVector( x, y);
+    this.mass = mass;
+    this.friction = friction;
+  }
+
+  public void initialize(ParticleEmitter e){
+    emitter = e;        
+    for (int i=0; i<maxNbParticles; i++) {
+      Particle p = emit();
       particles.add(p);
     }
   }
 
-  public Particle createParticle(float mass, float friction) {
-    Particle p = new Particle(pos.x, pos.y, 16, 16);
-    p.mass = mass;
-    p.friction=friction;
-    p.acc.x=random(-2, 2);
-    p.acc.y=random(-2, 2);
-    p.foregroundColor = foregroundColor;
-    p.fillColor = fillColor;
-    return p;
+  public Particle emit() {
+    return emitter.emit(this);
   }
 
   public void update() {
     if (lifespan>0) {
-      Particle pn = createParticle(mass, friction);
+      Particle pn = emit();
       particles.add(pn);
     }
 
